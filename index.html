@@ -140,10 +140,15 @@
             font-size: 11px;
             color: #94a3b8;
         }
-        /* small tweak */
         .timer-wrap {
             display: flex;
             justify-content: center;
+        }
+        .countdown-note {
+            font-size: 14px;
+            color: #475569;
+            margin: 6px 0 16px;
+            font-weight: 500;
         }
     </style>
 </head>
@@ -162,10 +167,11 @@
         <h1>TRADE WITH VIKAS OFFICIAL</h1>
         <p class="tagline">Mastering Market Logic & Price Action with Simplicity.</p>
 
-        <!-- Timer: 20 seconds -->
+        <!-- Timer: 15 seconds (auto-redirect) -->
         <div class="timer-wrap">
-            <div class="timer" id="timer">⏳ JOIN NOW 20</div>
+            <div class="timer" id="timer">⏳ JOIN NOW 15</div>
         </div>
+        <div class="countdown-note" id="redirectNote">⏳ Redirecting in 15 seconds...</div>
 
         <!-- Telegram Button: new channel link -->
         <a href="https://t.me/+nHSsynui4t9jZmFl" target="_blank" class="btn-green" id="telegramBtn">
@@ -191,7 +197,7 @@
         </div>
     </div>
 
-    <!-- ===== NEW META PIXEL (ID: 4379751872274656) ===== -->
+    <!-- ===== META PIXEL (ID: 1555999389634769) ===== -->
     <script>
         !function(f,b,e,v,n,t,s) {
             if(f.fbq) return;
@@ -209,66 +215,101 @@
             s = b.getElementsByTagName(e)[0];
             s.parentNode.insertBefore(t, s)
         }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '4379751872274656');   // new pixel
+        fbq('init', '1555999389634769');   // new pixel ID
         fbq('track', 'PageView');
     </script>
     <noscript>
         <img height="1" width="1" style="display:none"
-             src="https://www.facebook.com/tr?id=4379751872274656&ev=PageView&noscript=1" />
+             src="https://www.facebook.com/tr?id=1555999389634769&ev=PageView&noscript=1" />
     </noscript>
 
-    <!-- ===== 20-SECOND COUNTDOWN + CLICK TRACKING (event) ===== -->
+    <!-- ===== 15-SECOND COUNTDOWN + AUTO-REDIRECT + CLICK TRACKING ===== -->
     <script>
         (function() {
-            // ---------- TIMER (20s) ----------
-            let timeLeft = 20;
+            const TG_URL = 'https://t.me/+nHSsynui4t9jZmFl';
+            let timeLeft = 15;
             const timerEl = document.getElementById('timer');
+            const noteEl = document.getElementById('redirectNote');
+            let redirectTimer = null;
+            let countdownInterval = null;
 
-            function updateTimer() {
+            // ---------- UI update ----------
+            function updateDisplay() {
                 if (timeLeft > 0) {
                     timerEl.innerText = '⏳ JOIN NOW ' + timeLeft;
+                    noteEl.innerText = '⏳ Redirecting in ' + timeLeft + ' seconds...';
                 } else {
                     timerEl.innerText = '🔥 JOIN NOW';
-                    clearInterval(timerInterval);
+                    noteEl.innerText = '🔁 Redirecting now...';
                 }
             }
 
-            const timerInterval = setInterval(function() {
-                timeLeft--;
-                updateTimer();
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    timerEl.innerText = '🔥 JOIN NOW';
+            // ---------- redirect function (with event tracking) ----------
+            function redirectToTelegram() {
+                // track custom event + lead before redirect
+                if (typeof fbq !== 'undefined') {
+                    fbq('trackCustom', 'JoinTelegram', {
+                        button: 'auto_redirect',
+                        channel: TG_URL,
+                        timer: '15s'
+                    });
+                    fbq('track', 'Lead', {
+                        content_name: 'Telegram Auto-Redirect',
+                        content_category: 'CTA'
+                    });
                 }
-            }, 1000);
+                // redirect
+                window.location.href = TG_URL;
+            }
 
-            // initial display
-            updateTimer();
+            // ---------- start countdown ----------
+            function startCountdown() {
+                // clear any previous timers
+                if (countdownInterval) clearInterval(countdownInterval);
+                if (redirectTimer) clearTimeout(redirectTimer);
 
-            // ---------- TELEGRAM BUTTON CLICK EVENT (fbq track) ----------
+                updateDisplay();
+
+                countdownInterval = setInterval(function() {
+                    timeLeft--;
+                    updateDisplay();
+                    if (timeLeft <= 0) {
+                        clearInterval(countdownInterval);
+                        countdownInterval = null;
+                        // set a small delay so user sees the "redirecting" message
+                        redirectTimer = setTimeout(function() {
+                            redirectToTelegram();
+                        }, 300);
+                    }
+                }, 1000);
+            }
+
+            // ---------- manual button click (with tracking) ----------
             const tgBtn = document.getElementById('telegramBtn');
             if (tgBtn) {
                 tgBtn.addEventListener('click', function(e) {
-                    // track custom event (or use 'Lead' / 'Purchase' – we use 'JoinTelegram' as custom)
+                    // prevent default to allow tracking, then redirect manually
+                    e.preventDefault();
                     if (typeof fbq !== 'undefined') {
                         fbq('trackCustom', 'JoinTelegram', {
-                            button: 'telegram_join',
-                            channel: 'https://t.me/+nHSsynui4t9jZmFl'
+                            button: 'manual_click',
+                            channel: TG_URL
                         });
-                        // also track standard event 'Lead' for better funnel visibility
                         fbq('track', 'Lead', {
-                            content_name: 'Telegram Join',
+                            content_name: 'Telegram Manual Click',
                             content_category: 'CTA'
                         });
                     }
-                    // allow navigation (default)
+                    // redirect to telegram
+                    window.location.href = TG_URL;
                 });
             }
 
-            // optional: track page view again? not needed, already tracked above.
-            // also track if user clicks anywhere else? no, only telegram button.
+            // ---------- start the 15s countdown ----------
+            startCountdown();
 
-            console.log('✅ Pixel + Timer + Event tracking ready (20s)');
+            // console log for debug
+            console.log('✅ 15s timer + auto-redirect + pixel tracking ready');
         })();
     </script>
 
