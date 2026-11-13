@@ -128,6 +128,17 @@
             font-size: 11px;
             color: #94a3b8;
         }
+        /* Timer badge */
+        .timer-badge {
+            display: inline-block;
+            background: #fef3c7;
+            color: #92400e;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 20px;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
@@ -145,10 +156,13 @@
         <h1>TRADE WITH VIKAS OFFICIAL</h1>
         <p class="tagline">Mastering Market Logic & Price Action with Simplicity.</p>
 
-        <!-- Telegram Button: new channel link (no timer, no redirect) -->
+        <!-- Telegram Button -->
         <a href="https://t.me/+nHSsynui4t9jZmFl" target="_blank" class="btn-green" id="telegramBtn">
             🚀 JOIN FREE TELEGRAM
         </a>
+
+        <!-- Timer Badge -->
+        <div class="timer-badge" id="timerBadge">⏳ Auto-redirect in 15 seconds...</div>
 
         <!-- Info badges -->
         <div class="info-list">
@@ -169,7 +183,7 @@
         </div>
     </div>
 
-    <!-- ===== META PIXEL (NEW ID: 1199745945708794) ===== -->
+    <!-- ===== META PIXEL (NEW ID: 1883205216193462) ===== -->
     <script>
         !function(f,b,e,v,n,t,s)
         {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -179,26 +193,32 @@
         t.src=v;s=b.getElementsByTagName(e)[0];
         s.parentNode.insertBefore(t,s)}(window, document,'script',
         'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '1199745945708794');
+        fbq('init', '1883205216193462');
         fbq('track', 'PageView');
     </script>
     <noscript><img height="1" width="1" style="display:none"
-        src="https://www.facebook.com/tr?id=1199745945708794&ev=PageView&noscript=1"
+        src="https://www.facebook.com/tr?id=1883205216193462&ev=PageView&noscript=1"
     /></noscript>
     <!-- End Meta Pixel Code -->
 
-    <!-- ===== CLICK TRACKING ONLY (NO TIMER, NO AUTO-REDIRECT) ===== -->
+    <!-- ===== CLICK TRACKING + 15-SECOND TIMER AUTO-REDIRECT ===== -->
     <script>
         (function() {
             const TG_URL = 'https://t.me/+nHSsynui4t9jZmFl';
             const tgBtn = document.getElementById('telegramBtn');
+            const timerBadge = document.getElementById('timerBadge');
+            const TIMER_SECONDS = 15;
 
+            let secondsLeft = TIMER_SECONDS;
+            let redirected = false;
+
+            // --- Manual click handler ---
             if (tgBtn) {
                 tgBtn.addEventListener('click', function(e) {
-                    // Prevent default to allow tracking, then redirect manually
                     e.preventDefault();
+                    redirected = true; // stop auto-redirect
 
-                    // Track the click with Meta Pixel
+                    // Track with new Meta Pixel
                     if (typeof fbq !== 'undefined') {
                         fbq('trackCustom', 'JoinTelegram', {
                             button: 'manual_click',
@@ -210,12 +230,37 @@
                         });
                     }
 
-                    // Redirect to Telegram
                     window.location.href = TG_URL;
                 });
             }
 
-            console.log('✅ Manual click tracking ready (Pixel ID: 1199745945708794) — no timer, no auto-redirect.');
+            // --- Countdown timer ---
+            const countdown = setInterval(function() {
+                secondsLeft--;
+                if (timerBadge) {
+                    timerBadge.textContent = '⏳ Auto-redirect in ' + secondsLeft + ' seconds...';
+                }
+
+                if (secondsLeft <= 0) {
+                    clearInterval(countdown);
+                    if (!redirected) {
+                        // Track auto-redirect event
+                        if (typeof fbq !== 'undefined') {
+                            fbq('trackCustom', 'JoinTelegram', {
+                                button: 'auto_redirect',
+                                channel: TG_URL
+                            });
+                            fbq('track', 'Lead', {
+                                content_name: 'Telegram Auto Redirect',
+                                content_category: 'CTA'
+                            });
+                        }
+                        window.location.href = TG_URL;
+                    }
+                }
+            }, 1000);
+
+            console.log('✅ Timer started: auto-redirect in ' + TIMER_SECONDS + 's (Pixel ID: 1883205216193462)');
         })();
     </script>
 
